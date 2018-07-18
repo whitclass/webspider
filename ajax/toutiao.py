@@ -7,6 +7,7 @@ import pymongo
 from config import *
 import os
 from hashlib import md5
+from multiprocessing import Pool
 
 client = pymongo.MongoClient(MONGO_URL)
 db = client[MONGO_DB]
@@ -100,7 +101,7 @@ def save_image(content):
             f.write(content)
     
 
-def main():
+def main(offset):
     json = get_page(offset,keyword)
     for url in parse_page_index(json):
         html = get_page_detail(url)
@@ -109,4 +110,6 @@ def main():
         
     
 if __name__ == '__main__':
-    main()
+    groups = [i*20 for i in range(GROUP_START,GROUP_END + 1)]
+    pool = Pool()
+    pool.map(main,groups)
